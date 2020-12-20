@@ -1,0 +1,54 @@
+---
+layout: post
+status: publish
+published: true
+title: SSH via HTTP proxy
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 259
+wordpress_url: https://codediary.net/?p=259
+date: '2018-05-28 09:46:01 +0100'
+date_gmt: '2018-05-28 09:46:01 +0100'
+categories:
+- Security
+- Linux
+- Ubuntu
+tags:
+- SSH
+- netcat
+- unix
+- "*nix"
+- http-proxy
+- ProxyCommand
+---
+<p>If you happen to be stuck behind a corporate firewall with only HTTP proxies for external access, you might still be able to SSH out through them using the built-in&nbsp;<code>nc</code>&nbsp;on *nix systems.</p>
+<p><!--more--></p>
+<p>First, hope that the proxies haven&rsquo;t disabled the&nbsp;<code>CONNECT</code>&nbsp;method, then simply add a section to your&nbsp;<code>.ssh/config</code>&nbsp;like this:</p>
+<figure>
+<pre>Host foobar.example.com
+    ProxyCommand          nc -X connect -x proxyhost:proxyport %h %p
+    ServerAliveInterval   10</pre>
+</figure>
+<p>This will tunnel the connection through the HTTP proxy to the remote server. The&nbsp;<code>ServerAliveInterval</code>&nbsp;setting is required as most proxies will drop the connection after a period of inactivity.</p>
+<p>To avoid issues with trying to connect to the host when not behind the corporate firewall, replace the above with a fake entry for the proxy method like this:</p>
+<figure>
+<pre>Host foobar-proxy.example.com
+    HostName              foobar.example.com
+    ProxyCommand          nc -X connect -x proxyhost:proxyport %h %p
+    ServerAliveInterval   10</pre>
+</figure>
+<p>Then use</p>
+<figure>
+<pre>$ ssh foobar-proxy.example.com</pre>
+</figure>
+<p>when inside the firewall, and</p>
+<figure>
+<pre>$ ssh foobar.example.com</pre>
+</figure>
+<p>when outside.</p>
+<p>Simples, no external software required.</p>

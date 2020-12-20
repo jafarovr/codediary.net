@@ -1,0 +1,91 @@
+---
+layout: post
+status: publish
+published: true
+title: Install Let's Encrypt SSL Certificate in a Shared Hosting
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 1
+wordpress_url: http://blog.rjv.me/?p=1
+date: '2016-12-10 20:04:40 +0000'
+date_gmt: '2016-12-10 20:04:40 +0000'
+categories:
+- Tutorial
+- Security
+tags: []
+---
+<p>Let's encrypt lets you to get https for your website for completely free. It's the easiest way to get SSL certificate free of cost which will be recognized by major browsers. This tutorial goes through the steps that need to be done to get and setup a free SSL certificate for your shared cPanel hosting. Even though we are talking about cPanel, it's not exclusively only for cPanel users, the way described here to get the certificate will work for other cases too if the required conditions are met (which are necessary in all cases).</p>
+<p><!--more--></p>
+<h4 class=" line-after">Objectives:</h4>
+<ol>
+<li>Install letsencrypt in your local machine.</li>
+<li>Get a certificate for your domain using letsencrypt.</li>
+<li>Install the certificate for your domain using cPanel.</li>
+</ol>
+<h4 class=" line-after">What is Let's Encrypt:</h4>
+<p>Getting an SSL certificate for your domain to let the visitors access your website using <a class=" external-link" href="https://en.wikipedia.org/wiki/HTTPS">https</a> (secure protocol) involves buying the certificate from a Certificate Authority (CA) which is generally expensive. For example, with PositiveSSL you can get an SSL cert for 8~9$/yr for a single domain. It may not seem that expensive at first, but if you want to do the same with all of your domains, then the amount may appear to be unreasonable. Here comes the concept of free SSL for those who don't want to spend a lot of money just to let their visitors have access to the https versions of their websites.</p>
+<p><a class=" external-link" href="https://letsencrypt.org/">Let's encrypt</a> is a great project which aims to encrypt the whole web and make https available to general public completely free of cost. It is backed by some big-name sponsors like Electronic Frontier Foundation, mozilla, Akamai, Cisco, Chrome, Facebook, SiteGround, IdenTrust etc... This project is provided by the <a class=" external-link" href="https://en.wikipedia.org/wiki/Internet_Security_Research_Group">Internet Security Research Group</a> which is a public benefit organization.</p>
+<h4 class=" line-after">Let's get free HTTPS for your website:</h4>
+<p>Getting HTTPS using letsencrypt involves three steps: installing letsencrypt, generating certificate, uploading it with cpanel.</p>
+<h5>Installing letsencrypt:</h5>
+<h5>Requirements:</h5>
+<ol>
+<li>Debian based OS.</li>
+</ol>
+<p>To install letsencrypt run these commands in a terminal:</p>
+<pre>cd /usr/local
+sudo git clone https://github.com/letsencrypt/letsencrypt
+#sudo is to get root access, 
+sudo ln -sf /usr/local/letsencrypt/letsencrypt-auto /usr/bin/letsencrypt
+letsencrypt --hel</pre>
+<p>This should install letsencrypt in your system.</p>
+<h5>Generating certificate with letsencrypt:</h5>
+<p>To generate certificate for the domain example.com and www.example.com, run the following code in terminal:</p>
+<pre>letsencrypt certonly --manual --email admin@example.com -d example.com -d www.example.com</pre>
+<p>It will ask you to agree some license agreements. Hit <kbd>Enter</kbd> for OK. It will also give you a challenge to verify your ownership of the domains. An example challenge is:</p>
+<blockquote><p>Make sure your web server displays the following content at&nbsp;<a class=" external-link" href="http://example.com/.well-known/acme-challenge/uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ">http://example.com/.well-known/acme-challenge/uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ</a> before continuing:</p>
+<p>uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ.B5necJFJvzUyKE_LMUCV7iRrC59E-mdcd4-5PY6rC8c</p></blockquote>
+<p>To complete this challenge, you will have to create a directory/folder (<em>.well-known/acme-challenge/uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ</em>) in your remote host (generally in public_html) which will contain a <em>index.html</em> file with content: uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ.B5necJFJvzUyKE_LMUCV7iRrC59E-mdcd4-5PY6rC8c</p>
+<p>Another way is to create the <em>.well-known/acme-challenge/</em> folder/directory and create a file inside this folder with the name <em>uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ</em> and put <em>uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ.B5necJFJvzUyKE_LMUCV7iRrC59E-mdcd4-5PY6rC8c</em> as its' content.</p>
+<p>How you do this that's upto you. You can do this in localhost then upload with filezilla or use ssh to directly create them. Whatever you do, don't put anything else on that file other than the challenge key, not html/php tag/code, nothing; only the long hash key, and also be sure not put any spaces or newlines in that file.</p>
+<p>I am giving an example of how you can do it with ssh (in another terminal):</p>
+<p>To create index.html:</p>
+<pre>ssh -p port user@example.com #Login to remote host
+cd public_html #or whatever your document root is
+mkdir -p .well-known/acme-challenge/uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ
+cd .well-known/acme-challenge/uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ
+echo uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ.B5necJFJvzUyKE_LMUCV7iRrC59E-mdcd4-5PY6rC8c >index.html</pre>
+<p>The other method:</p>
+<pre>ssh -p port user@example.com #Login to remote host
+cd public_html #or whatever your document root is
+mkdir -p .well-known/acme-challenge
+cd .well-known/acme-challenge
+echo uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ.B5necJFJvzUyKE_LMUCV7iRrC59E-mdcd4-5PY6rC8c > uN2M3P6ZBWu9wUXhgKFE2y7ThrOmWr3TP-L1HS_WBSQ</pre>
+<p>That's it, the challenge is complete, now hit <kbd>Enter</kbd> in the terminal which is running letsencrypt. You will have to complete this challenge for each of the domains provided, i.e twice for example.com and www.example.com.</p>
+<p>After you complete the challenges you should get a success message like this:</p>
+<blockquote><p>IMPORTANT NOTES:</p>
+<ul>
+<li>Congratulations! Your certificate and chain have been saved at /etc/letsencrypt/live/example.com/fullchain.pem. Your cert will expire on 2016-04-10. To obtain a new version of the certificate in the future, simply run Let's Encrypt again.</li>
+<li>If you like Let's Encrypt, please consider supporting our work by:Donating to ISRG / Let's Encrypt: <a class=" external-link" href="https://letsencrypt.org/donate">https://letsencrypt.org/donate</a> Donating to EFF: <a class=" external-link" href="https://eff.org/donate-le">https://eff.org/donate-le</a></li>
+</ul>
+</blockquote>
+<p>Yap, the certificate is ready to be used. We just need to set it up with cpanel now.</p>
+<div id="5"></div>
+<h5>Automation of completing challenge:</h5>
+<p>Completing the challenge requires you to open another terminal and run ssh commands or create the index.html/index.php file by other means.</p>
+<p>Using ssh and running a few lines of commands in a second terminal can be tedious when we need to do that for each of our domains. For this very reason I have written an <a class=" external-link" href="https://github.com/neurobin/lcget">expect script (lcget)</a> to do this automatically. The script monitors the output and runs necessary commands using ssh to complete the http challenges. It minimizes all of your commands to a single command in a single terminal. For example, for the above case you could just do</p>
+<pre>lcget certonly --manual --email admin@example.com -d example.com -d www.example.com</pre>
+<p>and be done with. All the things would be taken care of automatically.</p>
+<h5>Setting up the letsencrypt certificate in cpanel:</h5>
+<p>The certificate is saved in <em>/etc/letencrypt/archive/example.com</em> directory. You can see several files here:</p>
+<ol>
+<li><strong>cert.pem:</strong> This is the certificate.</li>
+<li><strong>chain.pem:</strong> This is known as CABUNDLE (Certificate Authority Bundle).</li>
+<li><strong>privkey.pem:</strong> This is the private key.</li>
+</ol>
+<p>We will upload the certificate and private key files with cpanel and copy paste the content of <em>chain.pem</em> CABUNDLE (Certificate Authority Bundle).</p>

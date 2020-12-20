@@ -1,0 +1,120 @@
+---
+layout: post
+status: publish
+published: true
+title: Set up and Configure ModPagespeed on Apache/Ubuntu
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 67
+wordpress_url: https://codediary.net/?p=67
+date: '2017-01-01 22:20:11 +0000'
+date_gmt: '2017-01-01 18:20:11 +0000'
+categories:
+- Linux
+- Apache
+- Ubuntu
+tags: []
+---
+<p>Site performance is crucial in achieving online success, but site performance optimization can be a tedious and seemingly perpetual task that is often difficult to calculate a return on. Luckily, we can automate a large amount of general site performance optimizations, including on-the-fly image optimization, and asset minification, by installing an Apache server module called PageSpeed.</p>
+<p>This post will outline how to set up PageSpeed on an <strong>Apache 2.4.7/Ubuntu 14.04 LTS 64-bit server</strong> set-up (but should work across most versions of either) and how to configure PageSpeed for a fairly vanilla website. I will finish up with how to perform various maintanence functions and some other small tricks. Because of the diversity of websites and the versitality of this Apache module, the are far many more use cases for the PageSpeed filters than what will be touched on here, so I would encourage you to check out the <a title="PageSpeed Filters" href="https://developers.google.com/speed/pagespeed/module/filters">PageSpeed filters</a> to see the full breadth of what the PageSpeed module is capable of.</p>
+<p><!--more--></p>
+<h2 id="installpagespeedmodule">Install PageSpeed Module</h2>
+<h4 id="download">Download</h4>
+<p>Hop into your command line and head to your home folder if not sent there by default. Use the following commands to download the latest stable package into your home folder.</p>
+<p><strong>32-bit</strong></p>
+<pre class="">wget https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_i386.deb  
+</pre>
+<p><strong>64-Bit</strong></p>
+<pre class="">wget https://dl-ssl.google.com/dl/linux/direct/mod-pagespeed-stable_current_amd64.deb  
+</pre>
+<p>&nbsp;</p>
+<h4 id="install">Install</h4>
+<p>Stay in the same folder and run the following commands to install the module. You'll have to use sudo or it'll throw you an error.</p>
+<pre class="">sudo dpkg -i mod-pagespeed-*.deb    // Wildcard works with both versions, yay!  
+sudo apt-get -f install  
+</pre>
+<p>It'll do it's thing and in a few seconds, you'll be all set and the PageSpeed is set-up and enabled on your server, but not yet applying any optimizations to the server just yet. Let's head over to the configuration file first and get things ready.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Open the global configuration file using the following command. You will need sudo to save this file, so be sure to prepend that bad boy.</p>
+<pre class="">sudo vim /etc/apache2/mods-available/pagespeed.conf  
+</pre>
+<p>The configuration directives contained here will apply across the board. This file will contain your most general boilerplate PageSpeed configuration directives and you will then be able to apply overrides at the Virtual Hosts level for site-specific production optimizations as well as in <code>.htaccess</code>, where you can test or troubleshoot new optimizations in development.</p>
+<h4 id="anoteabouttheonswitch">A Note about the 'On Switch'</h4>
+<p>At the top of the configuration file, line 4 shows the following...</p>
+<pre class="">ModPagespeed off  
+</pre>
+<p><strong>Hold the phone, don't flip the switch just yet!</strong> This is the master configuration file for PageSpeed, so changes here apply to all web properties on the server. You can apply site-specific overrides elsewhere, but that will be covered in a bit.</p>
+<p>This directive can be thought of as the main breaker switch of the whole module. And, much like a house, while you are installing sockets and switches, you'd want to ensure the main breaker is off before beginning work or, worse, that any old wires that will be receiving electricity through frayed and going to spark a fire in a wall.</p>
+<p>The module's default state is <code>on</code> so you need only to comment out or delete the directive to kick it into life.</p>
+<h4 id="savingandrestarting">Saving and Restarting</h4>
+<p>So, hopefully you didn't listen to me and you have already deleted, commented, or changed the off to on, saved and refreshed your server only to see nothing's happened. You'll need to restart the Apache2 service after each update to the configs for them to be applied.</p>
+<pre class="">sudo service apache2 restart  
+</pre>
+<p><strong>Note:</strong> You will need to use <code>restart</code> here, <code>reload</code> won't cut it.</p>
+<p>So, if you have a non-production server you want to check to see if it actually is working, comment out <code>ModPagespeed off</code>, save the file, restart apache. Then jump over to your browser, fire up a website from that server, refresh the page no less than <strong>two</strong> times. This will give it a chance to do it's thing on the first page load and then server up the goods on the second page load. Inspect any asset or element with css applied and you will see that most self-hosted references are now rocking some PageSpeed names. These are the default directives in action.</p>
+<h4 id="thefilters">The Filters</h4>
+<p>Take a quick look at the full list of <a title="PageSpeed Filters" href="https://developers.google.com/speed/pagespeed/module/filters">PageSpeed filters</a> for some initial exposure into what's at your disposal. Also, please use this as a reference for the filters touched on here.</p>
+<p>By default, the module has enabled what's known as the <code>CoreFilters</code>. This set contains the following filters...</p>
+<pre class="">add_head  
+combine_css  
+combine_javascript  
+convert_meta_tags  
+extend_cache  
+fallback_rewrite_css_urls  
+flatten_css_imports  
+inline_css  
+inline_import_to_link  
+inline_javascript  
+rewrite_css  
+rewrite_images  
+rewrite_javascript  
+rewrite_style_attributes_with_url  
+</pre>
+<p>Take a look at each of these filters at <a title="PageSpeed Filters" href="https://developers.google.com/speed/pagespeed/module/filters">PageSpeed filters</a> and you can see what all you get out of the box.</p>
+<p>This is a pretty safe bet for most use-cases, but I like to extend the functionality a bit further. This is the boilerplate that I generally use when building out a new server instance.</p>
+<pre class=""># Image Filters
+ModPagespeedEnableFilters rewrite_images,insert_image_dimensions,inline_images,inline_preview_images,sprite_images,lazyload_images,convert_jpeg_to_progressive,jpeg_subsampling
+
+# CSS Filters
+ModPagespeedEnableFilters rewrite_css,move_css_above_scripts,combine_css,inline_css,flatten_css_imports,prioritize_critical_css,rewrite_style_attributes
+
+# JS Filters
+ModPagespeedEnableFilters rewrite_javascript,canonicalize_javascript_libraries,inline_javascript
+
+# Misc Filters
+ModPagespeedEnableFilters collapse_whitespace,trim_urls,remove_quotes,insert_dns_prefetch,extend_cache,inline_import_to_link  
+</pre>
+<p>I like to break these out into different filter classes to make sense of everything a bit more easily. Again, please take a look at the filter documentation for what does what.</p>
+<p>You can plop these into the config file anywhere, but overwriting the <code>ModPagespeedEnableFilters</code>section near line 60 is ideal.</p>
+<h4 id="otherconfigurationdirectives">Other Configuration Directives</h4>
+<p>Beyond the filters, there are dozens of other filter configuration directives that are shown commented out within the config file. Go through and tinker with these settings to determine what settings work best for your site. Keep you console handy because you will be <code>sudo service apache2 restart</code>ing after each change.</p>
+<h2 id="statisticsandthelike">Statistics and the Like</h2>
+<p>If you're into statistics like I am, you're going to be stoked because PageSpeed Module comes with a built-in stats engine. Around line 285, you will find <code># ModPagespeedEnableFilters add_instrumentation</code>. Uncomment this and the module will now apply the proper beacons and such where they need to be to applied to start tracking things.</p>
+<p><strong>Note:</strong> Only apply this to servers where it makes sense. With all trackers, there is a very slight cost in CPU usage and page load times which can hinder performance, but if you need an insight into usage, this filter should be applied.</p>
+<p>On development instances, I'll also uncomment <code># ModPagespeedStatisticsLogging on</code> near line 320 to allow for console reporting of issues through the web portal interface.</p>
+<p>At the bottom of the global configuration file, you will undoubtedly have noticed the <code>Location</code> apache directives for /mod_pagespeed_statistics, /pagespeed_console and /mod_pagespeed_message. Update the directive's settings to allow your machine's IP if you are going to be looking at a remote machine's data. After restarting Apache, you will now start to see data populating the web portals if you head over to and of the aforementioned URLs with the IP of the machine you are targetting prepended (<a href="http://123.456.789.12/mod_pagespeed_statistics">http://123.456.789.12/mod_pagespeed_statistics</a>). Or if you have a domain that's not tied to virtual host configuration, you can use that as the root of the reference (<a href="http://ssh.example.com/mod_pagespeed_statistics">http://ssh.example.com/mod_pagespeed_statistics</a>).</p>
+<p>You may also find it handy to see all the filters that are being applied by heading to /mod_pagespeed_statistics and clicking into the configuration tab.</p>
+<h2 id="afewextratricks">A Few Extra Tricks</h2>
+<h4 id="flushthecache">Flush the Cache</h4>
+<p>If you are seeing stale assets being served by PageSpeed, you can flush the cache. Hope into console, execute the following command, and you're all set.</p>
+<pre class="">sudo touch /var/cache/mod_pagespeed/cache.flush  
+</pre>
+<h4>Turn On/Off PageSpeed from the URL</h4>
+<p>You can turn on or off PageSpeed using a query string. Super easy and pretty awesome for giving your boss a quick A/B test of how rad your optimizations truly are</p>
+<p><strong>Turn PageSpeed Off</strong> -- <code>http://www.example.com/?ModPagespeed=off</code></p>
+<p><strong>Turn PageSpeed On</strong> -- <code>http://www.example.com/?ModPagespeed=on</code></p>
+<h4 id="kicktheinline_imagesfilterintolife">Kick the <code>inline_images</code> Filter into Life</h4>
+<p>If you check out the <code>inline_images</code> documentation, you'll see that it is pretty awesome. It essentially converts images to data-URIs that are sent with the gzipped markup request, resulting in less total requests to load the page and instant image loads. It's an amazing feature, but it's best to be used with smaller images (get the larger images on a CDN instead). If you're curious, I've seen 100KB seems like a pretty nice spot if there aren't too many instances that need to piggy-back that initial request's bandwidth.</p>
+<p>If you've applied this filter and restarted Apache a hundred times, and probably have gone so far as to disable and re-enable the module a bunch of times, don't worry, you're not alone. The default asset size threshold for this feature is set fairly low, 1KB.</p>
+<p>Near line 125 of the global configuration file, you'll find the "Other defaults (cache sizes and thresholds)" section. Uncomment the following and bump up the size (in bytes) to a reasonable number.</p>
+<pre class=""># ModPagespeedImageInlineMaxBytes 102400   // default x 100
+</pre>
+<p>Again, don't get carried away here. This likely is a pretty high setting for underpowered and/or lower-bandwidth servers, so be sure to adjust to what comes back best in testing and real world data.</p>
+<h4 id="applysitespecificanddevelopmentfilters">Apply Site-Specific and Development Filters</h4>
+<p>Applying site-specific filters is as easy as copying the entire configuration file, pasting it in the virtual-host configuration, remove <em>everything</em> except what you'd like to override, save your changes, and restart Apache.</p>
+<p>For development instances where you'd like to make quick changes for testing, you can apply the filters to your <code>.htaccess</code> file and the filters will be applied and updated without having to restart apache. Don't use this in production as running filters or really anything suffers a performance penalty, which doesn't really jive with the whole site optimization steez.</p>

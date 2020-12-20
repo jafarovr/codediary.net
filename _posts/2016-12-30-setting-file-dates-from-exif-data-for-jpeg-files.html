@@ -1,0 +1,24 @@
+---
+layout: post
+status: publish
+published: true
+title: Setting file dates from EXIF data for JPEG files
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 51
+wordpress_url: https://codediary.net/?p=51
+date: '2016-12-30 14:07:38 +0000'
+date_gmt: '2016-12-30 10:07:38 +0000'
+categories:
+- Random
+- Linux
+tags: []
+---
+<p><a href="http://www.sno.phy.queensu.ca/~phil/exiftool/">ExifTool</a> (which is free software written by Phil Harvey) lets you set the last modified date of the file system to the date the picture was taken, which is stored in the EXIF data of the JPEG file by virtually any digital camera. Simply create a folder with all the JPEGs and run this command:</p>
+<pre class="lang:default decode:true ">exiftool "-DateTimeOriginal>FileModifyDate" myjpgfolder</pre>
+<p>This also allows you to set the file date to the exact second. Typically memory cards for digital cameras are formatted as FAT which truncates creation times to even seconds, as it&rsquo;s one bit short for storing the time more precisely than at 2 second intervals.</p>

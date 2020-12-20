@@ -1,0 +1,26 @@
+---
+layout: post
+status: publish
+published: true
+title: Uploading files with Curl
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 29
+wordpress_url: https://codediary.net/?p=29
+date: '2016-12-30 12:12:31 +0000'
+date_gmt: '2016-12-30 08:12:31 +0000'
+categories:
+- Tutorial
+- Linux
+tags: []
+---
+<p>I&rsquo;ve always trouble uploading files with Curl. Some how the syntax for that command won&rsquo;t stick, so I post it here for future reference.</p>
+<p>What I want to do is perform a normal <code>POST</code>, including a file and some other variables to a remote server. This is it:</p>
+<pre>curl -i -F name=test -F filedata=@localfile.jpg http://example.org/upload
+</pre>
+<p>You can add as many <code>-F</code> as you want. The <code>-i</code> option tells curl to show the response headers as well, which I find useful most of the time.</p>

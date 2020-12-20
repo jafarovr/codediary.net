@@ -1,0 +1,39 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Log4j Tutorial : How to send log messages to different log files?'
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 110
+wordpress_url: https://codediary.net/?p=110
+date: '2017-01-31 02:44:53 +0000'
+date_gmt: '2017-01-30 22:44:53 +0000'
+categories:
+- Tutorial
+- Coding
+- Java
+tags: []
+---
+<p>One of the common requirement in Java projects, that are using Log4j logging, is to have different log files for each module (or layer) in the project. For example, if you have a web application, you may want to log the debug/info messages from the service layer to a <em>service.log</em> file and the log messages from the presentation layer to the <em>web-app.log</em> file and so on. This is very simple to achieve in Log4j.</p>
+<p><!--more--></p>
+<p>Log4j has a concept called <strong>Category</strong> using which you can classify a package as a category and assign a appender to that category alone. To make this point clear, consider that we have the below Java classes in our project:</p>
+<figure>
+<pre class="lang:default decode:true">com.someapp.service.myservice.SomeServiceClass.java
+    
+com.someapp.dao.SomeDaoClass.java</pre>
+</figure>
+<p>Now, if we want to send the log messages from SomeServiceClass.java to service.log and SomeDaoClass.java to dao.log files respectively, then the log4j configuration would be something like this:</p>
+<figure>
+<pre class="lang:default decode:true">log4j.category.com.someapp.service = INFO, serviceFileAppender
+log4j.category.com.someapp.dao = INFO, daoFileAppender
+log4j.rootLogger = INFO, defaultAppender</pre>
+</figure>
+<p>As you can see in above snippet, we are defining two categories for the <em>service</em> and <em>dao</em> packages and associating them with the appenders serviceFileAppender and daoFileAppender respectively. These two appender are just any file appenders configured somewhere in the same log4j.properties file. So, all the log messages that coming from the classes which resides under the <em>com.someapp.service</em> package will go to the serviceFileAppender, which in turn will go to service.log. The same logic applies to dao.log also.</p>
+<p>Apart from these two logs, we also defined the defaultAppender as the root logger. Means, the log messages from all the packages will go to defaultAppender, <strong>including the service and dao log messages</strong>. Yes! with the above configuration, the service and dao log messages will be there in two places. In their respective log appenders the defaultAppender.</p>
+<p>Source:&nbsp;<a href="http://veerasundar.com/blog/2009/08/log4j-tutorial-how-to-send-log-messages-to-different-log-files/">http://veerasundar.com/blog/2009/08/log4j-tutorial-how-to-send-log-messages-to-different-log-files/</a></p>

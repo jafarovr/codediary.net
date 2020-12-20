@@ -1,0 +1,44 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Log4j Tutorial: Additivity &ndash; what and why?'
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 114
+wordpress_url: https://codediary.net/?p=114
+date: '2017-01-31 02:50:12 +0000'
+date_gmt: '2017-01-30 22:50:12 +0000'
+categories:
+- Tutorial
+- Coding
+- Java
+tags: []
+---
+<p>You&rsquo;ve configured a total of <em>three appenders</em> in your application. One for the package <em>com.demo.moduleone</em> and one for <em>com.demo.moduletwo</em> and one root logger for <em>com.demo</em>. The log4j configuration will look something like this (showing only the appender configuration, excluding other details)</p>
+<p><!--more--></p>
+<figure>
+<pre class="lang:default decode:true">log4j.category.com.demo.moduleone = INFO, moduleOneFileAppender
+log4j.category.com.demo.moduletwo = INFO, moduleTwoFileAppender
+log4j.rootLogger = INFO, rootFileAppender</pre>
+</figure>
+<p>The Log4j loggers are following hierarchies. ie, A log4j logger is said to be an <em>ancestor</em> of another logger if its name followed by a dot is a prefix of the <em>descendant</em> logger name. A log4j logger is said to be a <em>parent</em> of a <em>child</em> logger if there are no ancestors between itself and the descendant logger.</p>
+<p>So, as per the hierarchy, our rootFileAppender is the <em>parent</em> appender for both moduleOneFileAppender and moduleTwoAppender. So, all the log messages that are coming to the child appenders will be propagated to the parent appenders too. So, in our scenario, the log messages from the package <em>com.demo.moduleone</em> will be sent to the <em>moduleOneFileAppender</em> plus the&nbsp;<em>rootFileAppender</em>. The same applies to the <em>com.demo.moduletwo</em> also. This leads to write the same log message in two different location.</p>
+<h2 id="how-to-avoid-this-redundancy">How to avoid this redundancy?</h2>
+<p>In order to avoid this redundancy, we can use <strong>Log4j&nbsp;additivity</strong>. Just set the <em>additivity</em> property&nbsp;of an Log4j logger to <strong>false</strong> and then the log messages which are coming to that logger will <strong>not</strong> be propagated to it&rsquo;s parent loggers. So, our new Log4j configuration file would be:</p>
+<figure>
+<pre class="lang:default decode:true">log4j.category.com.demo.moduleone = INFO, moduleOneFileAppender
+log4j.additivity.com.demo.moduleone = false
+
+log4j.category.com.demo.moduletwo = INFO, moduleTwoFileAppender
+log4j.additivity.com.demo.moduletwo = false
+
+log4j.rootLogger = INFO, rootFileAppender</pre>
+</figure>
+<p>With the above configuration, the log messages from the <em>com.demo.moduleone</em> will go to the moduleOneAppender only and the rest of the log messages will go to the rootFileAppender.</p>
+<p>Source:&nbsp;<a href="http://veerasundar.com/blog/2009/08/log4j-tutorial-additivity-what-and-why/">http://veerasundar.com/blog/2009/08/log4j-tutorial-additivity-what-and-why/</a></p>

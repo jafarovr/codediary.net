@@ -1,0 +1,164 @@
+---
+layout: post
+status: publish
+published: true
+title: Using Log MDC in multi-thread - Hello World example
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 106
+wordpress_url: https://codediary.net/?p=106
+date: '2017-01-27 00:16:15 +0000'
+date_gmt: '2017-01-26 20:16:15 +0000'
+categories:
+- Tutorial
+- Coding
+- Java
+tags: []
+---
+<p>The slf4j has MDC which will&nbsp; delegate to underlying logging system's MDC implementation.&nbsp; The most popular logging systems are log4j and logback. They both support MDC. So the most common way to use MDC (or logging system) is through slf4j API. In this demo, logback is used as underline logging system.</p>
+<p><strong><span style="font-size: medium;">What can MDC (Mapped Diagnostic Context) do for me?</span></strong></p>
+<p>MDC is a map like structure, it can save information you want to output to the log, so you don&rsquo;t need add that information to every logger.info(&hellip;) as parameter. For example, in an web application, you want every log output contain http request source IP. The IP string don&rsquo;t need to be added to every logger call , or passed back and forth between controller and service layers. You should save that IP in the MDC, and use <code>%X{IP}</code> in log configuration to add that value to every line of your log output.</p>
+<p><!--more--></p>
+<p>BTW, MDC is thread-safe. No worrying for concurrency.</p>
+<p><span style="font-size: medium;"><strong>MDC in multi-thread environment</strong></span></p>
+<p>In multi-thread environment, if the child is create with the basic Thread + Runnable way, the child thread will automatically inherit parent&rsquo;s MDC. But if&nbsp; using executor as thread management. The MDC inheritance is not&nbsp; warranted, as the logback document said:</p>
+<blockquote><p>A copy of the mapped diagnostic context can not always be inherited by worker threads from the initiating thread. This is the case when <code>java.util.concurrent.Executors</code> is used for thread management.</p></blockquote>
+<p>In this hello world demo, there are 2 threads. The main thread will create a child thread using package java.utils.concurrent instead of the old style Thread way to show how to keep MDC context inheritance.</p>
+<h3>0. What you need</h3>
+<ul>
+<li>JDK 1.7</li>
+<li>Maven 3.2.1</li>
+<li>SLF4J 1.7.7</li>
+<li>Logback 1.1.2</li>
+</ul>
+<h3>1. Configure the maven pom.xml</h3>
+<div>
+<div id="highlighter_632144" class="syntaxhighlighter xml">
+<pre class="lang:default decode:true"><project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                        http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+ 
+  <groupId>net.codediary.demo</groupId>
+  <artifactId>slf4j-logback-mdc</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+ 
+  <name>slf4j-logback-mdc</name>
+  <url>http://maven.apache.org</url>
+ 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+ 
+  <dependencies>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.7</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.1.2</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+</project></pre>
+<p>Add dependencies for slf4j and logback in pom.xml</p>
+</div>
+</div>
+<h3>2. Define the Java class</h3>
+<p>There are 2 classes in this demo. First the Child.java.</p>
+<div>
+<div id="highlighter_959096" class="syntaxhighlighter java">
+<pre class="lang:default decode:true">package net.codediary.demo;
+ 
+import java.util.Map;
+ 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+ 
+public class Child implements Runnable {
+  private Logger logger = LoggerFactory.getLogger(Child.class);
+   
+  // contextMap is set when new Child() is called
+  private Map<String,String> contextMap = MDC.getCopyOfContextMap();
+   
+  public void run() {
+    MDC.setContextMap(contextMap);  // set contextMap when thread start
+    logger.info("Running in the child thread");
+  }
+}</pre>
+</div>
+</div>
+<p>The Child.java is very simple, just implements the Runnable interface. One thing need to mention is how the MDC context is passed from parent thread to child thread. The Child object instance is created in<strong> parent thread</strong>, when<em> new Child()</em> is call immediately before executor create new thread. So the parent&rsquo;s MDC context is duplicated to a variable called <em>contextMap, </em>then set back to MDC in child thread at the begin of<em> run()</em>method.</p>
+<p>The Parent.java with main()</p>
+<div>
+<div id="highlighter_1030" class="syntaxhighlighter java">
+<pre class="lang:default decode:true">package net.codediary.demo;
+ 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+ 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+ 
+public class Parent {
+  private Logger logger = LoggerFactory.getLogger(Parent.class);
+  private ExecutorService executorService = Executors.newCachedThreadPool();
+   
+  public Parent() {
+    // Mimic Web app, save common info in MDC
+    MDC.put("IP", "192.168.1.1");
+  }
+ 
+  public void runMultiThreadByExecutor() throws InterruptedException {
+    logger.info("Before start child thread");
+     
+    executorService.submit(new Child());
+    logger.info("After start child thread");
+     
+    executorService.shutdown();
+    executorService.awaitTermination(1, TimeUnit.SECONDS);
+    logger.info("ExecutorService is over");
+  }
+ 
+  public static void main(String[] args) throws InterruptedException {
+    Parent parent = new Parent();
+    parent.runMultiThreadByExecutor();  //MDC OK
+  }
+}</pre>
+</div>
+</div>
+<p>In Parent class, ExecutorService from java.util.concurrency package is used to create a new child thread.&nbsp; In parent&rsquo;s constructor , String &ldquo;192.168.1.1&rdquo; has been put in MDC with key &ldquo;IP&rdquo;. The key/value can be any String. MDC works just like an ordinary Map<String,String>. It will be used in logback&rsquo;s patten layout shown below.</p>
+<h3>3. Configure logging system to use values in MDC</h3>
+<p>In logback, the value can be get using "%X{KEY}" in appender&rsquo;s pattern. So in this demo, it should be "%X{IP}". Here is the logback.xml for this demo.</p>
+<div>
+<div id="highlighter_14830" class="syntaxhighlighter xml">
+<pre class="lang:default decode:true "><configuration>
+  <!-- to screen -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <!-- screen output pattern -->
+      <pattern>%d{HH:mm:ss.SSS} [%X{IP}] [%thread] %-5level [%F:%L] - %msg %n</pattern>
+    </encoder>
+  </appender>
+  
+  <root level="INFO">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration></pre>
+<p>&nbsp;</p>
+</div>
+</div>

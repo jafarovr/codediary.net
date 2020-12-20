@@ -1,0 +1,26 @@
+---
+layout: post
+status: publish
+published: true
+title: What's the difference between .tar.gz and .gz?
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 177
+wordpress_url: https://codediary.net/?p=177
+date: '2017-03-20 12:40:00 +0000'
+date_gmt: '2017-03-20 08:40:00 +0000'
+categories:
+- Linux
+- Ubuntu
+tags: []
+---
+<p>In Unix and Unix-like systems (like Ubuntu), archiving and compression are separate.</p>
+<p><code>tar</code> puts multiple files into a single (tar) file.</p>
+<p><code>gzip</code> compresses one file (only).</p>
+<p>So to get a compressed archive, you combine the two, first use <code>tar</code> or <code>pax</code> to get all files into a single file (archive.tar), then <code>gzip</code> it (archive.tar.gz). If you only have one file you need to compress (notes.txt), there's no need for tar, so you just do <code>gzip notes.txt</code> which will result in <code>notes.txt.gz</code>. There are other types of compression, such as <code>compress</code>, <code>bzip2</code> and <code>xz</code> which work in the same manner as gzip (apart from using different types of compression of course)</p>
+<p>Source:&nbsp;<a href="http://askubuntu.com/questions/122141/whats-the-difference-between-tar-gz-and-gz-or-tar-7z-and-7z" target="_blank" rel="noopener noreferrer">http://askubuntu.com/questions/122141/whats-the-difference-between-tar-gz-and-gz-or-tar-7z-and-7z</a></p>

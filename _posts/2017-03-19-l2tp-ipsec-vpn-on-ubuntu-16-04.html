@@ -1,0 +1,119 @@
+---
+layout: post
+status: publish
+published: true
+title: L2TP / IPSEC VPN on Ubuntu 16.04
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 174
+wordpress_url: https://codediary.net/?p=174
+date: '2017-03-19 12:37:50 +0000'
+date_gmt: '2017-03-19 08:37:50 +0000'
+categories:
+- Random
+- Linux
+- Ubuntu
+tags: []
+---
+<p>LT2P IPSEC vpn works simple and easily with iOS/Android and Windows 10. Unfortunately as many people likely know (after a few google searches it seems) the client for this is pretty crap in Ubuntu 16.04.</p>
+<p>Our setup uses a shared PSK, and a username and password.</p>
+<p>I&rsquo;ve tried a bunch of the quick setup guides, but many were for older versions of Ubuntu and thus didn&rsquo;t work very well. Finally I stumbled across this guide: <a href="https://gist.github.com/psanford/42c550a1a6ad3cb70b13e4aaa94ddb1c" target="_blank" rel="noopener noreferrer">https://gist.github.com/psanford/42c550a1a6ad3cb70b13e4aaa94ddb1c</a></p>
+<p>which was used to connect with a meraki router over vpn. There were some minor tweaks in my case, but I managed to get it work.</p>
+<p><!--more--></p>
+<p>Install the following packages:</p>
+<pre>apt-get install -y strongswan xl2tpd
+</pre>
+<p>Configure <strong>strongswan</strong></p>
+<pre>cat > /etc/ipsec.conf <<EOF
+# ipsec.conf - strongSwan IPsec configuration file
+
+# basic configuration
+
+config setup
+        # strictcrlpolicy=yes
+        # uniqueids = no
+
+# Add connections here.
+
+# Sample VPN connections
+
+conn %default
+        ikelifetime=60m
+        keylife=20m
+        rekeymargin=3m
+        keyingtries=1
+        keyexchange=ikev1
+        authby=secret
+        ike=aes128-sha1-modp1024,3des-sha1-modp1024!
+        esp=aes128-sha1-modp1024,3des-sha1-modp1024!
+
+conn meraki
+     keyexchange=ikev1
+     left=%defaultroute
+     auto=add
+     authby=secret
+     type=transport
+     leftprotoport=17/%any
+     rightprotoport=17/1701
+     # set this to the ip address of your meraki vpn  
+     right=XXX.XXX.XXX.XXX
+EOF
+
+cat > /etc/ipsec.secrets <<EOF
+: PSK "YOUR_PSK_GOES_HERE"
+EOF
+
+</pre>
+<p>Configure <strong>xl2tp</strong>:</p>
+<pre>cat > /etc/xl2tpd/xl2tpd.conf <<EOF
+[lac meraki]
+# your meraki vpn ip goes here
+lns = XXX.XXX.XXX.XXX
+ppp debug = yes
+pppoptfile = /etc/ppp/options.l2tpd.client
+length bit = yes
+EOF
+
+cat > /etc/ppp/options.l2tpd.client <<EOF
+ipcp-accept-local
+ipcp-accept-remote
+refuse-eap
+require-mschap-v2
+noccp
+noauth
+idle 1800
+mtu 1410
+mru 1410
+defaultroute
+usepeerdns
+debug
+lock
+connect-delay 5000
+EOF
+
+mkdir -p /var/run/xl2tpd
+touch /var/run/xl2tpd/l2tp-control
+</pre>
+<p>Restart your services:</p>
+<pre>service strongswan restart
+service xl2tpd restart
+</pre>
+<p>Start the ipsec connection:</p>
+<pre>ipsec up meraki
+</pre>
+<p>Start the l2tp connection (with your username and password)</p>
+<pre>echo "c meraki <user> <pass>" > /var/run/xl2tpd/l2tp-control
+</pre>
+<p>To disconnect:</p>
+<pre>echo "d meraki" > /var/run/xl2tpd/l2tp-control
+ipsec down meraki</pre>
+<p>Lastly, I had to add routing information into the routing table so that things are actually going through the VPN. To do this, first add a route to the Internet IP of the VPN server, through your local gateway (ie: the ip of your local router).</p>
+<pre>sudo route add gw</pre>
+<p>Then make the default route, the one which goes through the VPN (the local IP address of the VPN server, which you should be able to see with an ifconfig (it will be the P-t-P ip address):</p>
+<pre>sudo route add -net default gw</pre>
+<p>You can now verify that you can reach devices within the local vpn network correctly.</p>

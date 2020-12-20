@@ -1,0 +1,26 @@
+---
+layout: post
+status: publish
+published: true
+title: Difference between 'git pull' and 'git fetch'?
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 224
+wordpress_url: https://codediary.net/?p=224
+date: '2017-08-02 15:21:40 +0100'
+date_gmt: '2017-08-02 11:21:40 +0100'
+categories:
+- Random
+tags: []
+---
+<p>In the simplest terms,&nbsp;<code>git pull</code>&nbsp;does a&nbsp;<code>git fetch</code>&nbsp;followed by a&nbsp;<code>git merge</code>.</p>
+<p>You can do a&nbsp;<code>git fetch</code>&nbsp;at any time to update your remote-tracking branches under&nbsp;<code>refs/remotes/<remote>/</code>.</p>
+<p>This operation never changes any of your own local branches under&nbsp;<code>refs/heads</code>, and is safe to do without changing your working copy. I have even heard of people running&nbsp;<code>git fetch</code>periodically in a cron job in the background (although I wouldn't recommend doing this).</p>
+<p>A&nbsp;<code>git pull</code>&nbsp;is what you would do to bring a local branch up-to-date with its remote version, while also updating your other remote-tracking branches.</p>
+<p>Git documentation:&nbsp;<a href="http://git-scm.com/docs/git-pull" rel="noreferrer"><strong>git pull</strong></a></p>
+<p>Source:&nbsp;<a href="https://stackoverflow.com/questions/292357/what-is-the-difference-between-git-pull-and-git-fetch" target="_blank" rel="noopener noreferrer">https://stackoverflow.com/questions/292357/what-is-the-difference-between-git-pull-and-git-fetch</a></p>

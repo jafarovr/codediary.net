@@ -1,0 +1,42 @@
+---
+layout: post
+status: publish
+published: true
+title: How to solve PPTP VPN client cannot open web pages
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 33
+wordpress_url: https://codediary.net/?p=33
+date: '2016-12-30 12:20:11 +0000'
+date_gmt: '2016-12-30 08:20:11 +0000'
+categories:
+- Linux
+tags: []
+---
+<p>If you are running PPTP VPN server (pptpd) on a Linux host, and your PPTP clients cannot open any web pages, here is a checklist for you to debug the problem.</p>
+<p><!--more--></p>
+<div><strong>Is there another client connected to the PPTP VPN server?</strong></div>
+<div>
+<p>If two clients are under the same NAT, they may not connect to the same PPTP VPN server at once. This is a limitation in PPTP implementation.</p>
+<p><strong>Does PPTP VPN server allow IP forwarding?</strong></p>
+<p>Check kernel configuration on the PPTP server and make sure that <code>ip_forward</code> is enabled by running:</p>
+<pre># sysctl -a | grep ip_forward</pre>
+<p>If you see <code>net.ipv4.ip_forward = 0</code><br />
+That means IP forwarding is not enabled and you&nbsp;<strong>must</strong> enable it. One way is to edit&nbsp;/etc/sysctl.conf&nbsp;and change/add the following line:</p>
+<pre>net.ipv4.ip_forward = 1</pre>
+<p><strong>Does PPTP VPN server firewall masquerade network interfaces?</strong><br />
+It is&nbsp;<strong>essential</strong> to configure firewall to masquerade public Internet network interface and ppp network interface, here are the firewall rules:</p>
+<pre>iptables -A POSTROUTING -t nat -o eth0 -j MASQUERADE
+iptables -A POSTROUTING -t nat -o ppp+ -j MASQUERADE</pre>
+<p><strong>Does PPTP VPN server have clamp-mss-to-pmtu set in iptables?</strong>If your VPN clients can visit certain websites but not others, then you are very likely encountering MTU problem. It can be fixed easily by the following iptables rule:</p>
+<pre>iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu</pre>
+<p><strong>Are DNS server addresses set correctly on PPTPD configuration?</strong></p>
+<p>If your VPN clients can ping IP addresses (such as Google DNS 8.8.8.8) but not visiting any websites, then it is likely a DNS issue. You can set DNS server addresses on VPN clients, or set them on the VPN server's&nbsp;<code>options.pptpd</code>, change/add the following lines:</p>
+<pre>ms-dns 8.8.8.8
+ms-dns 8.8.4.4</pre>
+</div>

@@ -1,0 +1,124 @@
+---
+layout: post
+status: publish
+published: true
+title: Make REST calls in PHP
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 63
+wordpress_url: https://codediary.net/?p=63
+date: '2017-01-01 22:09:10 +0000'
+date_gmt: '2017-01-01 18:09:10 +0000'
+categories:
+- Coding
+- PHP
+tags: []
+---
+<h5>Example of calling GET request</h5>
+<div>
+<pre class="lang:default decode:true ">//next example will recieve all messages for specific conversation
+$service_url = 'http://example.com/api/conversations/[CONV_CODE]/messages&amp;apikey=[API_KEY]';
+$curl = curl_init($service_url);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+$curl_response = curl_exec($curl);
+if ($curl_response === false) {
+&nbsp; &nbsp; $info = curl_getinfo($curl);
+&nbsp; &nbsp; curl_close($curl);
+&nbsp; &nbsp; die('error occured during curl exec. Additioanl info: ' . var_export($info));
+}
+curl_close($curl);
+$decoded = json_decode($curl_response);
+if (isset($decoded->response->status) &amp;&amp; $decoded->response->status == 'ERROR') {
+&nbsp; &nbsp; die('error occured: ' . $decoded->response->errormessage);
+}
+echo 'response ok!';
+var_export($decoded->response);</pre>
+</div>
+<p><!--more--></p>
+<h5>Example of calling POST request</h5>
+<div>
+<pre class="lang:default decode:true">//next example will insert new conversation
+$service_url = 'http://example.com/api/conversations';
+$curl = curl_init($service_url);
+$curl_post_data = array(
+&nbsp; &nbsp; &nbsp; &nbsp; 'message' => 'test message',
+&nbsp; &nbsp; &nbsp; &nbsp; 'useridentifier' => 'agent@example.com',
+&nbsp; &nbsp; &nbsp; &nbsp; 'department' => 'departmentId001',
+&nbsp; &nbsp; &nbsp; &nbsp; 'subject' => 'My first conversation',
+&nbsp; &nbsp; &nbsp; &nbsp; 'recipient' => 'recipient@example.com',
+&nbsp; &nbsp; &nbsp; &nbsp; 'apikey' => 'key001'
+);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_POST, true);
+curl_setopt($curl, CURLOPT_POSTFIELDS, $curl_post_data);
+$curl_response = curl_exec($curl);
+if ($curl_response === false) {
+&nbsp; &nbsp; $info = curl_getinfo($curl);
+&nbsp; &nbsp; curl_close($curl);
+&nbsp; &nbsp; die('error occured during curl exec. Additioanl info: ' . var_export($info));
+}
+curl_close($curl);
+$decoded = json_decode($curl_response);
+if (isset($decoded->response->status) &amp;&amp; $decoded->response->status == 'ERROR') {
+&nbsp; &nbsp; die('error occured: ' . $decoded->response->errormessage);
+}
+echo 'response ok!';
+var_export($decoded->response);</pre>
+</div>
+<h5>Example of calling PUT request</h5>
+<div>
+<div>
+<pre class="lang:default decode:true">//next eample will change status of specific conversation to resolve
+$service_url = 'http://example.com/api/conversations/cid123/status';
+$ch = curl_init($service_url);
+&nbsp;
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+$data = array("status" => 'R');
+curl_setopt($ch, CURLOPT_POSTFIELDS,http_build_query($data));
+$response = curl_exec($ch);
+if ($response&nbsp;=== false) {
+&nbsp; &nbsp; $info = curl_getinfo($ch);
+&nbsp; &nbsp; curl_close($ch);
+&nbsp; &nbsp; die('error occured during curl exec. Additioanl info: ' . var_export($info));
+}
+curl_close($ch);
+$decoded = json_decode($response);
+if (isset($decoded->response->status) &amp;&amp; $decoded->response->status == 'ERROR') {
+&nbsp; &nbsp; die('error occured: ' . $decoded->response->errormessage);
+}
+echo 'response ok!';
+var_export($decoded->response);</pre>
+</div>
+</div>
+<h5>Example of calling DELETE request</h5>
+<div>
+<pre class="lang:default decode:true">$service_url = 'http://example.com/api/conversations/[CONVERSATION_ID]';
+$ch = curl_init($service_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+$curl_post_data = array(
+&nbsp; &nbsp; &nbsp; &nbsp; 'note' => 'this is spam!',
+&nbsp; &nbsp; &nbsp; &nbsp; 'useridentifier' => 'agent@example.com',
+&nbsp; &nbsp; &nbsp; &nbsp; 'apikey' => 'key001'
+);
+curl_setopt($curl, CURLOPT_POSTFIELDS, $curl_post_data);
+$response = curl_exec($ch);
+if ($curl_response === false) {
+&nbsp; &nbsp; $info = curl_getinfo($curl);
+&nbsp; &nbsp; curl_close($curl);
+&nbsp; &nbsp; die('error occured during curl exec. Additioanl info: ' . var_export($info));
+}
+curl_close($curl);
+$decoded = json_decode($curl_response);
+if (isset($decoded->response->status) &amp;&amp; $decoded->response->status == 'ERROR') {
+&nbsp; &nbsp; die('error occured: ' . $decoded->response->errormessage);
+}
+echo 'response ok!';
+var_export($decoded->response);</pre>
+</div>

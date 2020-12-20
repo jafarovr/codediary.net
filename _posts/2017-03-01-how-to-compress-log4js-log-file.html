@@ -1,0 +1,64 @@
+---
+layout: post
+status: publish
+published: true
+title: How to Compress Log4J's Log File
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 144
+wordpress_url: https://codediary.net/?p=144
+date: '2017-03-01 15:24:32 +0000'
+date_gmt: '2017-03-01 11:24:32 +0000'
+categories:
+- Random
+- Coding
+- Java
+- Maven
+tags: []
+---
+<p>I'm using log4j&rsquo;s DailyRollingFileAppender which would create a new log file everyday. Each file&rsquo;s size is around 100 to 200MB, and I see the log files folder is growing bigger and bigger every day.</p>
+<p>My solution to them is to compress everyday&rsquo;s log into gzip, gz or perhaps into zip file. Basically, im using one of <a href="http://logging.apache.org/log4j/companions/extras/">log4j&rsquo;s companion.</a></p>
+<p><!--more--></p>
+<p>So here is my solution, first a simple pom.xml to download the libraries needed.</p>
+<pre class="lang:default decode:true "><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+ 
+    <groupId>net.codediary</groupId>
+    <artifactId>Log</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+ 
+    <name>Log</name>
+ 
+    <dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>apache-log4j-extras</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>                       
+    </dependencies>
+</project></pre>
+<p>And then my log4j.properties file, please take a look at line 7. It will create a new log file for every second, change it into <code>yyyyMMdd</code> if you want to create a daily appender.</p>
+<div>
+<pre class="lang:default decode:true ">log4j.rootLogger=DEBUG, request
+ 
+log4j.appender.request=org.apache.log4j.rolling.RollingFileAppender
+log4j.appender.request.File=msg.log
+log4j.appender.request.RollingPolicy=org.apache.log4j.rolling.TimeBasedRollingPolicy
+log4j.appender.request.RollingPolicy.ActiveFileName =msg.log
+log4j.appender.request.RollingPolicy.FileNamePattern=msg.%d{yyyyMMdd.HHmmss}.gz
+log4j.appender.request.layout = org.apache.log4j.PatternLayout
+log4j.appender.request.layout.ConversionPattern=%d{ABSOLUTE} %5p %c{1}:%L - %m%n</pre>
+<p>&nbsp;</p>
+</div>

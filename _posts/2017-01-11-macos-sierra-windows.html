@@ -1,0 +1,29 @@
+---
+layout: post
+status: publish
+published: true
+title: Clear the local DNS cache in macOS Sierra, OSX, Linux and Windows
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 95
+wordpress_url: https://codediary.net/?p=95
+date: '2017-01-11 00:00:49 +0000'
+date_gmt: '2017-01-10 20:00:49 +0000'
+categories:
+- Linux
+- macOS
+- Windows
+tags: []
+---
+<p><strong>macOS Sierra&nbsp;10.12.0</strong></p>
+<pre class="lang:default decode:true ">sudo killall -HUP mDNSResponder</pre>
+<p><strong><span id="more-5404"></span>Windows</strong></p>
+<pre class="lang:default decode:true">ipconfig /flushdns</pre>
+<p><strong>Linux</strong> (depending on what you&rsquo;re running)</p>
+<pre class="lang:default decode:true ">/etc/init.d/named restart
+/etc/init.d/nscd restart</pre>

@@ -1,0 +1,118 @@
+---
+layout: post
+status: publish
+published: true
+title: Dynamically Add Javascript and CSS Files in CodeIgniter Header Page
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 42
+wordpress_url: https://codediary.net/?p=42
+date: '2016-12-30 13:33:28 +0000'
+date_gmt: '2016-12-30 09:33:28 +0000'
+categories:
+- Coding
+- PHP
+- CodeIgniter
+tags: []
+---
+<p>Those who are developing web projects know that, header pages are always the constant file of their template folder. The classic way of using a header page in small projects are to fill it with constant&nbsp;JavaScript&nbsp;and CSS files along with html tags and use it in inside functions where you need. The problem arise when you start to develop a bigger project where you need to use different JavaScript and CSS files. The bad practice is to load all needed files in the header page, that will also start to appear and load in the pages and sections which we do not need them. This will make the page load slow and will cause conflicts and usage problems.</p>
+<p><!--more--></p>
+<p>The solution to this problem is to dynamically load the CSS and JavaScript files in the pages we need them and make our page load faster by reducing the included files according to our exact need.</p>
+<p>To implement this in CodeIgniter, firstly set the default CSS and JavaScript files in <code>config.php</code></p>
+<pre class="lang:php decode:true ">Default CSS and JavaScript headersPHP
+
+$config['header_css'] = array('style.css','prettyPhoto.css','nivo-slider.css');
+$config['header_js']  = array('core.js','core.js',
+                              'jquery-1.4.1.min.js',
+                              'jquery-slidedeck.pack.lite.js',
+                              'jquery-prettyPhoto.js',
+                              'jquery.nivo.slider.js');
+</pre>
+<p>then, add this helper functions I wrote, to your template helper (or any other helper files you use)</p>
+<div id="crayon-58661300cccd8648748101" class="crayon-syntax crayon-theme-github crayon-font-monaco crayon-os-mac print-yes notranslate" data-settings=" minimize scroll-mouseover">
+<pre class="lang:php decode:true">//Dynamically add Javascript files to header page
+if(!function_exists('add_js')){
+    function add_js($file='')
+    {
+        $str = '';
+        $ci = &amp;get_instance();
+        $header_js  = $ci->config->item('header_js');
+
+        if(empty($file)){
+            return;
+        }
+
+        if(is_array($file)){
+            if(!is_array($file) &amp;&amp; count($file) <= 0){
+                return;
+            }
+            foreach($file AS $item){
+                $header_js[] = $item;
+            }
+            $ci->config->set_item('header_js',$header_js);
+        }else{
+            $str = $file;
+            $header_js[] = $str;
+            $ci->config->set_item('header_js',$header_js);
+        }
+    }
+}
+
+//Dynamically add CSS files to header page
+if(!function_exists('add_css')){
+    function add_css($file='')
+    {
+        $str = '';
+        $ci = &amp;get_instance();
+        $header_css = $ci->config->item('header_css');
+
+        if(empty($file)){
+            return;
+        }
+
+        if(is_array($file)){
+            if(!is_array($file) &amp;&amp; count($file) <= 0){
+                return;
+            }
+            foreach($file AS $item){   
+                $header_css[] = $item;
+            }
+            $ci->config->set_item('header_css',$header_css);
+        }else{
+            $str = $file;
+            $header_css[] = $str;
+            $ci->config->set_item('header_css',$header_css);
+        }
+    }
+}
+
+if(!function_exists('put_headers')){
+    function put_headers()
+    {
+        $str = '';
+        $ci = &amp;get_instance();
+        $header_css = $ci->config->item('header_css');
+        $header_js  = $ci->config->item('header_js');
+
+        foreach($header_css AS $item){
+            $str .= '<link rel="stylesheet" href="'.base_url().'css/'.$item.'" type="text/css" />'."\n";
+        }
+
+        foreach($header_js AS $item){
+            $str .= '<script type="text/javascript" src="'.base_url().'js/'.$item.'"></script>'."\n";
+        }
+
+        return $str;
+    }
+}</pre>
+<p>Now, you can manually add CSS and JavaScript files as below:</p>
+<pre class="lang:php decode:true">add_css(array('jamshid.css','hashimi.css'));
+add_js('jamshid.js');</pre>
+<p>lastly, you can use the put_headers function to load your CSS and JavaScript files in to your header page.</p>
+<p>You can easily extend this helper function to minify your CSS and JavaScript files and pass parameters for further use.</p>
+</div>

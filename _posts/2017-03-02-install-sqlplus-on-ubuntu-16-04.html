@@ -1,0 +1,46 @@
+---
+layout: post
+status: publish
+published: true
+title: Install SQL*Plus on Ubuntu 16.04
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 150
+wordpress_url: https://codediary.net/?p=150
+date: '2017-03-02 12:41:49 +0000'
+date_gmt: '2017-03-02 08:41:49 +0000'
+categories:
+- Linux
+- Ubuntu
+- Databases
+- Oracle
+tags: []
+---
+<p>First of all you need to download <a href="http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html" rel="nofollow">Instant Client Downloads</a>. Install alien software so you can install rpm packages by typing following command in terminal.</p>
+<pre class="lang:default decode:true">sudo apt-get install alien</pre>
+<p>Once that is done, go to the folder where the rpm files are located and execute the following:</p>
+<p><!--more--></p>
+<pre class="lang:default decode:true">sudo alien -i oracle-instantclient*-basic*.rpm
+sudo alien -i oracle-instantclient*-sqlplus*.rpm
+sudo alien -i oracle-instantclient*-devel*.rpm</pre>
+<p>You need to install <code>libaio.so</code>. Type following command to do it:</p>
+<pre class="lang:default decode:true">sudo apt-get install libaio1</pre>
+<p>Create Oracle configuration file:</p>
+<pre class="lang:default decode:true">sudo vi /etc/ld.so.conf.d/oracle.conf</pre>
+<p>Put this line in that file:</p>
+<pre class="lang:default decode:true">/usr/lib/oracle/<your version>/client/lib/</pre>
+<p>Note - for 64-bit installations, the path will be:</p>
+<pre class="lang:default decode:true">/usr/lib/oracle/<your version>/client64/lib/</pre>
+<p>Update the configuration by running following command:</p>
+<pre class="lang:default decode:true">sudo ldconfig</pre>
+<p>Try to connect using:</p>
+<pre class="lang:default decode:true">sqlplus username/password@//dbhost:1521/SID</pre>
+<p>or:</p>
+<pre class="lang:default decode:true">sqlplus testuser/password</pre>
+<p>Note that if you installed the 64-bit version, the client is called <code>sqlplus64</code>.</p>
+<p>Source:&nbsp;<a href="http://askubuntu.com/questions/159939/how-to-install-sqlplus" target="_blank" rel="noopener noreferrer">http://askubuntu.com/questions/159939/how-to-install-sqlplus</a></p>

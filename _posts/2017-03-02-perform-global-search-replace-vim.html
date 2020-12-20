@@ -1,0 +1,26 @@
+---
+layout: post
+status: publish
+published: true
+title: vim - perform a global search and replace
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 156
+wordpress_url: https://codediary.net/?p=156
+date: '2017-03-02 14:55:28 +0000'
+date_gmt: '2017-03-02 10:55:28 +0000'
+categories:
+- Random
+- Linux
+- Ubuntu
+- vim
+tags: []
+---
+<p>To perform a global search and replace in <a href="http://www.vim.org/" target="_blank" rel="noopener noreferrer">vim</a>, use the search and replace command in command mode:</p>
+<pre>:%s/search_string/replacement_string/g</pre>
+<p>The <code>%</code> is a shortcut that tells vi to search all lines of the file for <code>search_string</code> and change it to&nbsp;<code>replacement_string</code>. The global (<code>g</code>) flag at the end of the command tells vi to continue searching for other occurrences of <code>search_string</code>. To confirm each replacement, add the confirm (<code>c</code>) flag after the global flag.</p>

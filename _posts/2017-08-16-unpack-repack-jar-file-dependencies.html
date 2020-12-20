@@ -1,0 +1,35 @@
+---
+layout: post
+status: publish
+published: true
+title: Unpack and repack a JAR file with all of its dependencies
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 226
+wordpress_url: https://codediary.net/?p=226
+date: '2017-08-16 17:08:43 +0100'
+date_gmt: '2017-08-16 13:08:43 +0100'
+categories:
+- Random
+- Linux
+- Coding
+- Java
+tags: []
+---
+<p>Repacking an unpacked JAR is a little frustrating because of the folder structure</p>
+<p>When unpacking with:</p>
+<pre class="lang-java prettyprint prettyprinted"><span class="pln">jar xvf JAR_NAME</span><span class="pun">.</span><span class="pln">jar</span></pre>
+<p>you get a&nbsp;<code>JAR_NAME/</code>&nbsp;folder</p>
+<p>To repack the JAR:</p>
+<p>remove old jar</p>
+<pre class="lang-java prettyprint prettyprinted"><span class="pln">rm JAR_NAME</span><span class="pun">.</span><span class="pln">jar</span></pre>
+<p>get inside the folder</p>
+<pre class="lang-java prettyprint prettyprinted"><span class="pln">cd JAR_NAME</span></pre>
+<p>pack the jar referencing the parent folder</p>
+<pre class="lang-java prettyprint prettyprinted"><span class="pln">jar cf </span><span class="pun">../</span><span class="pln">JAR_NAME</span><span class="pun">.</span><span class="pln">jar </span><span class="pun">*</span></pre>
+<p>and you will end up with the JAR_NAME.jar in the parent folder, where the original was unpacked from, without the first folder level you would get if you had packed the folder itself.</p>

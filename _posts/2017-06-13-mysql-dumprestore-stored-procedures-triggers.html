@@ -1,0 +1,29 @@
+---
+layout: post
+status: publish
+published: true
+title: MySQL Dump/Restore Stored Procedures and Triggers
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 213
+wordpress_url: https://codediary.net/?p=213
+date: '2017-06-13 17:37:44 +0100'
+date_gmt: '2017-06-13 13:37:44 +0100'
+categories:
+- MySQL
+tags: []
+---
+<p><code>mysqldump</code> will backup by default all the triggers but NOT the stored procedures/functions. There are 2 mysqldump parameters that control this behavior:</p>
+<p>&mdash;routines &ndash; FALSE by default<br />
+&mdash;triggers &ndash; TRUE by default</p>
+<p>This means that if you want to include in an existing backup script also the triggers and stored procedures you only need to add the &mdash;routines command line parameter:</p>
+<pre>mysqldump <other mysqldump options> --routines outputfile.sql</pre>
+<p>Let&rsquo;s assume we want to backup ONLY the stored procedures and triggers and not the mysql tables and data (this can be useful to import these in another db/server that has already the data but not the stored procedures and/or triggers), then we should run something like:</p>
+<pre>mysqldump --routines --no-create-info --no-data --no-create-db --skip-opt <database> > outputfile.sql</pre>
+<p>and this will save only the procedures/functions/triggers of the . If you need to import them to another db/server you will have to run something like:</p>
+<pre>mysql <database> < outputfile.sql</pre>

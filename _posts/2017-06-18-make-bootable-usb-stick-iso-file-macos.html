@@ -1,0 +1,49 @@
+---
+layout: post
+status: publish
+published: true
+title: How To Make A Bootable USB Stick From An ISO File On macOS
+author:
+  display_name: codediary.net
+  login: codediary
+  email: info@codediary.net
+  url: ''
+author_login: codediary
+author_email: info@codediary.net
+wordpress_id: 217
+wordpress_url: https://codediary.net/?p=217
+date: '2017-06-18 22:36:48 +0100'
+date_gmt: '2017-06-18 18:36:48 +0100'
+categories:
+- macOS
+- Apple
+tags:
+- bootable usb
+- iso
+- iso to usb
+- dmg to usb
+---
+<p>This quick step by step will show you how to make a bootable USB stick from a downloaded&nbsp;<a href="https://en.wikipedia.org/wiki/ISO_image" target="_blank" rel="noopener noreferrer">ISO image file&nbsp;</a>using an Apple Mac OS X.</p>
+<p><strong>Note:</strong>&nbsp;this procedure requires an <strong>.img</strong> file that you will be required to create from the <strong>.iso</strong> file you download.</p>
+<p><!--more--></p>
+<hr />
+<p><strong>Tip:</strong>&nbsp;Drag and Drop a file from Finder to Terminal to 'paste' the full path without typing and risking typos.</p>
+<hr />
+<ol>
+<li>Download the desired file</li>
+<li>Open the Terminal (in /Applications/Utilities/ or query Terminal in Spotlight)</li>
+<li>Convert the .iso file to .img using the convert option of hdiutil:<br />
+<code>hdiutil convert -format UDRW -o /path/to/target.img /path/to/source.iso<br />
+</code><strong>Note:</strong>&nbsp;OS X tends to put the&nbsp;<code>.dmg</code>&nbsp;ending on the output file automatically. Rename the file by typing:<br />
+<code>mv /path/to/target.img.dmg /path/to/target.img</code></li>
+<li>Run&nbsp;<code>diskutil list</code>&nbsp;to get the current list of devices</li>
+<li>Insert your flash media</li>
+<li>Run&nbsp;<code>diskutil list</code>&nbsp;again and determine the device node assigned to your flash media (e.g. /dev/disk2)</li>
+<li>Run&nbsp;<code>diskutil unmountDisk /dev/diskN</code>&nbsp;(replace&nbsp;<em>N</em>&nbsp;with the disk number from the last command - in the previous example,&nbsp;<em>N</em>&nbsp;would be&nbsp;<em>2</em>)</li>
+<li>Execute&nbsp;<code>sudo dd if=/path/to/downloaded.img of=/dev/rdiskN bs=1m</code>(replace&nbsp;<code>/path/to/downloaded.img</code>&nbsp;with the path where the image file is located; for example,&nbsp;<code>./ubuntu.img</code>&nbsp;or&nbsp;<code>./ubuntu.dmg</code>).<br />
+<strong>Note:</strong>&nbsp;Using&nbsp;<code>/dev/rdisk</code>&nbsp;instead of&nbsp;<code>/dev/disk</code>&nbsp;may be faster.<br />
+<strong>Note:</strong>&nbsp;If you see the error&nbsp;<code>dd: Invalid number '1m'</code>, you are using GNU dd. Use the same command but replace&nbsp;<code>bs=1m</code>&nbsp;with&nbsp;<code>bs=1M</code>.<br />
+<strong>Note:</strong>&nbsp;If you see the error&nbsp;<code>dd: /dev/diskN: Resource busy</code>, make sure the disk is not in use. Start the 'Disk Utility.app' and unmount (don't eject) the drive.</li>
+<li>Run&nbsp;<code>diskutil eject /dev/diskN</code>&nbsp;and remove your flash media when the command completes</li>
+</ol>
+<p><strong>Now the USB stick is ready.</strong>&nbsp;Boot the device that you want from the USB stick.</p>
