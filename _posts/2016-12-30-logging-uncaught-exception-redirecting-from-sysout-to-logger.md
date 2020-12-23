@@ -3,26 +3,20 @@ layout: post
 status: publish
 published: true
 title: Logging uncaught exception (redirecting from sysout to logger)
-author:
-  display_name: codediary.net
-  login: codediary
-  email: info@codediary.net
-  url: ''
-author_login: codediary
-author_email: info@codediary.net
-wordpress_id: 38
-wordpress_url: https://codediary.net/?p=38
 date: '2016-12-30 12:28:03 +0000'
 date_gmt: '2016-12-30 08:28:03 +0000'
+permalink: /posts/logging-uncaught-exception-redirecting-from-sysout-to-logger/
 categories:
 - Coding
 - Java
 tags: []
 ---
-<p>Uncaught exceptions in Java are handled by the System. The JVM usually logs the exception into the System.err and then shuts down. But in case of web applications its different. It logs the printstack trace to server console and then continues. Even though most of the time System.err is redirected to a file system, I wanted a better way of handling it just like any other exception stacktrace. I wanted logger ( you can use <em>log4j</em> too) to handle it, so I it can help maintainers better.<br />
-Java gives <code>Thread.UncaughtExceptionHandler</code> to handle any such exceptions. I implemented my own.</p>
-<p><!--more--></p>
-<pre class="lang:java decode:true  ">import java.util.logging.*;
+Uncaught exceptions in Java are handled by the System. The JVM usually logs the exception into the System.err and then shuts down. But in case of web applications its different. It logs the printstack trace to server console and then continues. Even though most of the time System.err is redirected to a file system, I wanted a better way of handling it just like any other exception stacktrace. I wanted logger (you can use *log4j* too) to handle it, so I it can help maintainers better.
+
+Java gives `Thread.UncaughtExceptionHandler` to handle any such exceptions. I implemented my own.
+
+```java
+import java.util.logging.*;
 
 public class TestUncaughtExceptionHandling {
     public static void main(String[] args) {
@@ -62,5 +56,5 @@ class MyUncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
         lr.setThrown(e);
         log.log(lr);
     }
-}</pre>
-<p>&nbsp;</p>
+}
+```
