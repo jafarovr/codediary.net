@@ -3,31 +3,30 @@ layout: post
 status: publish
 published: true
 title: Java Dynamic Property Configuration
-author:
-  display_name: codediary.net
-  login: codediary
-  email: info@codediary.net
-  url: ''
-author_login: codediary
-author_email: info@codediary.net
-wordpress_id: 83
-wordpress_url: https://codediary.net/?p=83
 date: '2017-01-05 16:14:12 +0000'
 date_gmt: '2017-01-05 12:14:12 +0000'
+permalink: /posts/java-dynamic-property-configuration/
 categories:
 - Coding
 - Java
 tags: []
 ---
-<p>Recently, I&nbsp;had the need of changing <code>config.properties</code>&nbsp;(predefined application configuration) in Java without restarting the application. I found out a very nice library from Netflix which constantly looks for the changes in your config file and applies these variables runtime.</p>
-<p><!--more--></p>
-<p>I am adding maven repository of the library and an example code. Full documentation is available at:&nbsp;<a href="https://github.com/Netflix/archaius" target="_blank" rel="noopener noreferrer">https://github.com/Netflix/archaius</a></p>
-<pre class="lang:default decode:true "><dependency>
+
+Recently, I had the need of changing `config.properties` (predefined application configuration) in Java without restarting the application. I found out a very nice library from Netflix which constantly looks for the changes in your config file and applies these variables runtime.
+
+
+I am adding maven repository of the library and an example code. Full documentation is available at: [github.com/Netflix/archaius](https://github.com/Netflix/archaius)
+
+```xml
+<dependency>
   <groupId>com.netflix.archaius</groupId>
   <artifactId>archaius-core</artifactId>
   <version>0.6.0</version>
-</dependency></pre>
-<pre class="lang:default decode:true">import com.google.common.util.concurrent.RateLimiter;
+</dependency>
+```
+
+```java
+import com.google.common.util.concurrent.RateLimiter;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import com.netflix.config.*;
 import com.netflix.config.sources.JDBCConfigurationSource;
@@ -66,7 +65,10 @@ public class DynamicConfigTest {
       }
     });
   }
-}</pre>
-<pre class="lang:default decode:true  "># config.properties
-key=1</pre>
-<p>I found this library very useful, often I needed to change logging level from INFO to DEBUG to debug my application in runtime. This library helped me to do it, hope&nbsp;you'd find it helpful too.</p>
+}
+```
+```
+# config.properties
+key=1
+```
+I found this library very useful, often I needed to change logging level from INFO to DEBUG to debug my application in runtime. This library helped me to do it, hope you'd find it helpful too.
